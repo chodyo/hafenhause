@@ -1,0 +1,9 @@
+## Simple POST Example
+
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+
+{
+    "Subject": 1,
+    "Score": 10,
+    "Notes": "test request"
+}
