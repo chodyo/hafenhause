@@ -2,6 +2,10 @@
 
 An experimental project where I learn how to use gcloud tools and create some neat applications for my household while I'm at it.
 
+## things learned
+- Go modules
+- gcloud functions, firestore
+
 ## deploying, testing
 
 To deploy a new update, run
@@ -10,6 +14,9 @@ To deploy a new update, run
 (for example, `bin/deploy.sh SubmitBedtimeReport`)
 
 To test, open `hafenhaus_tests.http` and use the REST Client VSCode extension to send POST requests.
+
+## functions
+1. `SubmitBedtimeReport`
 
 ## bedtimes
 
@@ -30,7 +37,3 @@ A bedtime tracker. Good behavior one night earns 10m later while bad behavior ea
    - possibly skip straight to holding state
    - don't round timestamp to nearest day - just accept events (maybe throttle to prevent spamming or multiple sequential requests)
    - keep in mind this is a document store, not a sql table
-
-### things learned
-- Go modules
-- gcloud functions, firestore
