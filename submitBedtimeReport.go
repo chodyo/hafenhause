@@ -1,45 +1,48 @@
 package hafenhaus
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 
-	"github.com/chodyo/hafenhaus/bedtimes"
+	"github.com/chodyo/hafenhaus/bedtime"
+)
+
+const (
+	decodeMessage   = "Could not decode request: %v"
+	validateMessage = "Could not parse request: %v"
+	persistMessage  = "Could not persist data: %v"
+	successMessage  = "Success! Report saved: %+v"
 )
 
 // SubmitBedtimeReport receives a bedtimeReport and saves it to a FireStore
 func SubmitBedtimeReport(w http.ResponseWriter, r *http.Request) {
-	var report bedtimes.Report
-	if err := json.NewDecoder(r.Body).Decode(&report); err != nil {
-		log.Printf("Could not decode request: %+v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Header().Set("Content-Type", "text/plain")
-		io.WriteString(w, fmt.Sprintf("Could not decode request: %v", err))
-		return
-	}
-
-	if errs := bedtimes.ValidateReport(&report); len(errs) > 0 {
-		log.Printf("Could not parse request: %+v", errs)
-		w.Header().Set("Content-Type", "text/plain")
-		io.WriteString(w, fmt.Sprintf("Could not parse request: %v", errs))
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// TODO: check if report day already has an entry in the db
-
-	err := bedtimes.Save(&report)
+	report, err := bedtime.NewReportFromRequest(r)
 	if err != nil {
-		log.Printf("Could not persist data: %v", err)
-		w.Header().Set("Content-Type", "text/plain")
-		io.WriteString(w, fmt.Sprintf("Could not persist data: %v", err))
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf(decodeMessage, err)
+		writeResponse(w, http.StatusBadRequest, decodeMessage, err)
 		return
 	}
 
-	log.Printf("Success! Report saved: %+v", report)
-	w.WriteHeader(http.StatusOK)
+	if errs := report.Validate(); len(errs) > 0 {
+		log.Printf(validateMessage, errs)
+		writeResponse(w, http.StatusBadRequest, validateMessage, errs)
+		return
+	}
+
+	if err := report.Save(); err != nil {
+		log.Printf(persistMessage, err)
+		writeResponse(w, http.StatusInternalServerError, persistMessage, err)
+		return
+	}
+
+	log.Printf(successMessage, report)
+	writeResponse(w, http.StatusOK, successMessage, report)
+}
+
+func writeResponse(w http.ResponseWriter, status int, msg string, args ...interface{}) {
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "text/plain")
+	io.WriteString(w, fmt.Sprintf(msg, args...))
 }

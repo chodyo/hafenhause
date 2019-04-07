@@ -1,9 +1,61 @@
-## Simple POST Example
-
+### Simple POST Example
 POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
 
 {
-    "Subject": 1,
-    "Score": 10,
-    "Notes": "test request"
+    "subject": "cody",
+    "score": 10
+}
+
+### Simple POST Example
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "julia",
+    "score": -10
+}
+
+### Simple POST Example
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "brannigan",
+    "date": "2019-04-07T19:00:00-04:00"
+}
+
+### Simple POST Example
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "malcolm",
+    "carryover": true
+}
+
+### Invalid POST Example
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "leif",
+    "score": -10
+}
+
+### Invalid POST Example
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "malcolm",
+    "carryover": false
+}
+
+### Invalid POST Example
+POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "brannigan"
 }
