@@ -111,7 +111,7 @@ func (r *Report) Save() error {
 	bedtime = ValidOrDefault(bedtime)
 
 	if r.Score != 0 {
-		bedtime = bedtime.Add(time.Duration(r.Score) * time.Minute).Add(24 * time.Hour)
+		bedtime = bedtime.Add(time.Duration(r.Score) * time.Minute)
 	}
 
 	_, err = r.db.Set(ctx, map[string]time.Time{
