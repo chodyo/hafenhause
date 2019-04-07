@@ -20,11 +20,20 @@ To test, open `hafenhaus_tests.http` and use the REST Client VSCode extension to
 
 Request
 ``` json
+// Set the time explicitly
 {
-	"subject": "cody",
-	"date": "2019-04-07T19:10:00-04:00",
-	"score": 10,
-	"carryOver": true
+    "subject": "cody",
+    "date": "2019-04-07T19:30:00-04:00"
+}
+// Record the score and let the server figure out the new time
+{
+    "subject": "julia",
+    "score": 10
+}
+// For when you want score=0
+{
+    "subject": "brannigan",
+    "carryOver": true
 }
 ```
 
