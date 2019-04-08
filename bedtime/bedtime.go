@@ -50,12 +50,12 @@ func init() {
 // Use the CarryOver field to set the bedtime to be the same the next night as
 // it was the night before.
 type Report struct {
-	Subject   string     `json:"subject,omitempty"`
+	Subject   string     `json:"subject"`
 	Date      *time.Time `json:"date,omitempty"`
 	Score     int        `json:"score,omitempty"`
 	CarryOver bool       `json:"carryOver,omitempty"`
 
-	db *firestore.DocumentRef
+	db *firestore.CollectionRef
 }
 
 // Reporter contains all functions that can be performed on a Report
@@ -70,7 +70,7 @@ func NewReportFromRequest(r *http.Request) (*Report, error) {
 	if err := json.NewDecoder(r.Body).Decode(&report); err != nil {
 		return nil, err
 	}
-	report.db = client.Collection(collection).Doc(report.Subject)
+	report.db = client.Collection(collection)
 	return &report, nil
 }
 
@@ -99,63 +99,105 @@ func (r *Report) Validate() []error {
 func (r *Report) Save() error {
 	ctx := context.Background()
 
-	bedtime, err := r.GetLastBedtime()
-	if err != nil {
-		return err
-	}
+	var bedtime time.Time
 
+	// explicit dates override everything
 	if r.Date != nil {
 		bedtime = *r.Date
+	} else {
+		bedtime = r.GetLastOrDefault()
+
+		if r.Score != 0 {
+			bedtime = bedtime.Add(time.Duration(r.Score) * time.Minute)
+		}
+
+		if bedtime.Before(time.Now()) {
+			bedtime = bedtime.Add(24 * time.Hour)
+		}
+
+		defaultBedtime := GetDefaultBedtime()
+		if bedtime.After(defaultBedtime) {
+			bedtime = defaultBedtime
+		}
 	}
 
-	bedtime = ValidOrDefault(bedtime)
-
-	if r.Score != 0 {
-		bedtime = bedtime.Add(time.Duration(r.Score) * time.Minute)
-	}
-
-	_, err = r.db.Set(ctx, map[string]time.Time{
+	_, err := r.db.Doc(r.Subject).Set(ctx, map[string]time.Time{
 		"bedtime": bedtime,
 	})
 
 	return err
 }
 
-// GetLastBedtime queries the database and returns a default value in the future
-// if the entry does not exist
-func (r *Report) GetLastBedtime() (time.Time, error) {
+// GetLastOrDefault queries the database and returns a default value in the
+// future if the entry does not exist
+func (r *Report) GetLastOrDefault() time.Time {
 	ctx := context.Background()
 
-	subjectDoc, err := r.db.Get(ctx)
-	if !subjectDoc.Exists() {
-		return time.Time{}, nil
-	} else if err != nil {
-		return time.Time{}, fmt.Errorf("Could not access previous bedtime: %+v", err)
+	subjectDoc, err := r.db.Doc(r.Subject).Get(ctx)
+	if !subjectDoc.Exists() || err != nil {
+		return GetDefaultBedtime()
 	}
 
 	var lastBedtime map[string]time.Time
 	subjectDoc.DataTo(&lastBedtime)
 
-	return lastBedtime["bedtime"], nil
+	return lastBedtime["bedtime"]
 }
 
-// ValidOrDefault checks if a given bedtime is within 24 hours or else it gets
-// the next future default bedtime
-func ValidOrDefault(t time.Time) time.Time {
+// GetAllBedtimes returns the times and dates of all stored bedtimes for
+// relevant subjects, i.e. Bran and Mal
+func GetAllBedtimes() ([]Report, error) {
+	ctx := context.Background()
+
+	docsnaps, err := client.GetAll(ctx, []*firestore.DocumentRef{
+		client.Doc("hafenhaus/" + brannigan),
+		client.Doc("hafenhaus/" + malcolm),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var bedtimes []Report
+
+	for _, ds := range docsnaps {
+		var report Report
+
+		report.Subject = ds.Ref.ID
+
+		bedtimeEntity, err := ds.DataAt("bedtime")
+		if err != nil {
+			return []Report{}, err
+		}
+		bedtime, ok := bedtimeEntity.(time.Time)
+		if !ok {
+			return []Report{}, err
+		}
+		report.Date = &bedtime
+
+		bedtimes = append(bedtimes, report)
+	}
+
+	return bedtimes, nil
+}
+
+// GetDefaultBedtime will return the default (maximum) next bedtime. If today's
+// bedtime is in the past, it will add 1 day to ensure it is referencing
+// tomorrow's bedtime
+func GetDefaultBedtime() time.Time {
 	loc, err := time.LoadLocation(defaultTimeZone)
+
 	if err != nil {
 		log.Printf("ERROR loading time location! %v", err)
 	}
-	now := time.Now().In(loc)
 
-	if t.Before(now.Add(24*time.Hour)) && t.After(now) {
-		return t
-	}
+	now := time.Now().In(loc)
 
 	bedtime := time.Date(now.Year(), now.Month(), now.Day(), defaultBedtimeHour,
 		defaultBedtimeMinute, int(0), int(0), loc)
+
 	if bedtime.Before(now) {
 		bedtime = bedtime.Add(24 * time.Hour)
 	}
+
 	return bedtime
 }

@@ -21,28 +21,24 @@ func SubmitBedtimeReport(w http.ResponseWriter, r *http.Request) {
 	report, err := bedtime.NewReportFromRequest(r)
 	if err != nil {
 		log.Printf(decodeMessage, err)
-		writeResponse(w, http.StatusBadRequest, decodeMessage, err)
+		http.Error(w, decodeMessage, http.StatusBadRequest)
 		return
 	}
 
 	if errs := report.Validate(); len(errs) > 0 {
 		log.Printf(validateMessage, errs)
-		writeResponse(w, http.StatusBadRequest, validateMessage, errs)
+		http.Error(w, validateMessage, http.StatusBadRequest)
 		return
 	}
 
 	if err := report.Save(); err != nil {
 		log.Printf(persistMessage, err)
-		writeResponse(w, http.StatusInternalServerError, persistMessage, err)
+		http.Error(w, persistMessage, http.StatusInternalServerError)
 		return
 	}
 
 	log.Printf(successMessage, report)
-	writeResponse(w, http.StatusOK, successMessage, report)
-}
-
-func writeResponse(w http.ResponseWriter, status int, msg string, args ...interface{}) {
-	w.WriteHeader(status)
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/plain")
-	io.WriteString(w, fmt.Sprintf(msg, args...))
+	io.WriteString(w, fmt.Sprintf(successMessage, report))
 }

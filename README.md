@@ -8,15 +8,19 @@ An experimental project where I learn how to use gcloud tools and create some ne
 
 ## deploying, testing
 
-To deploy a new update, run
+To deploy a new update, run 
 
 `bin/deploy.sh [functionName]`
+
 (for example, `bin/deploy.sh SubmitBedtimeReport`)
 
 To test, open `hafenhaus_tests.http` and use the REST Client VSCode extension to send POST requests.
 
 ## functions
-1. `SubmitBedtimeReport`
+
+1. `GET /GetBedtimes`
+
+2. `POST /SubmitBedtimeReport`
 
 Request
 ``` json
@@ -37,14 +41,16 @@ Request
 }
 ```
 
+
 ## bedtimes
 
 A bedtime tracker. Good behavior one night earns 10m later while bad behavior earns 10m earlier bedtime the next night.
 
 ### todo
-| type  | description                                                                 |   status   |
-| :---: | :-------------------------------------------------------------------------- | :--------: |
-|  DB   | hold member states                                                          | **[DONE]** |
-|  FN   | can upload new bedtime data each night                                      | **[DONE]** |
-|  FN   | Background watcher/cron or additional functionality to update member states | **[TODO]** |
-|  FN   | get current bedtime for each member                                         | **[TODO]** |
+| type  | description                                           |   status   |
+| :---: | :---------------------------------------------------- | :--------: |
+|  DB   | hold member states                                    | **[DONE]** |
+|  FN   | can upload new bedtime data each night                | **[DONE]** |
+|  FN   | additional functionality to auto-update member states | **[TODO]** |
+|  FN   | get current bedtime for each member                   | **[DONE]** |
+|  UI   | interface for interaction and kid-friendly display    | **[TODO]** |
