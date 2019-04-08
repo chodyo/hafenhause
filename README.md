@@ -49,8 +49,7 @@ A bedtime tracker. Good behavior one night earns 10m later while bad behavior ea
 ### todo
 | type  | description                                           |   status   |
 | :---: | :---------------------------------------------------- | :--------: |
-|  DB   | hold member states                                    | **[DONE]** |
-|  FN   | can upload new bedtime data each night                | **[DONE]** |
-|  FN   | additional functionality to auto-update member states | **[TODO]** |
 |  FN   | get current bedtime for each member                   | **[DONE]** |
+|  FN   | can upload new bedtime data each night                | **[DONE]** |
 |  UI   | interface for interaction and kid-friendly display    | **[TODO]** |
+|  FN   | additional functionality to auto-update member states | **[TBD]**  |
