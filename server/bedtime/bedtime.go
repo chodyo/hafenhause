@@ -3,7 +3,6 @@ package bedtime
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -47,13 +46,10 @@ func init() {
 // Report summarizes the bedtime routine for a single person on a single night.
 // Specify either the Date to set an absolute bedtime for the next night or
 // specify the Score to set a relative bedtime compared to the night before.
-// Use the CarryOver field to set the bedtime to be the same the next night as
-// it was the night before.
 type Report struct {
-	Subject   string     `json:"subject"`
-	Date      *time.Time `json:"date,omitempty"`
-	Score     int        `json:"score,omitempty"`
-	CarryOver bool       `json:"carryOver,omitempty"`
+	Subject *string    `json:"subject"`
+	Date    *time.Time `json:"date,omitempty"`
+	Score   *int       `json:"score,omitempty"`
 
 	db *firestore.CollectionRef
 }
@@ -75,21 +71,23 @@ func NewReportFromRequest(r *http.Request) (*Report, error) {
 }
 
 // Validate makes sure the Report object has sane defaults
-func (r *Report) Validate() []error {
-	var errs []error
+func (r *Report) Validate() []string {
+	var errs []string
 
-	// make sure we know who the report is for
-	switch strings.ToLower(r.Subject) {
-	case cody, julia, brannigan, malcolm:
-	default:
-		errs = append(errs, fmt.Errorf("Invalid person"))
+	if r.Subject == nil {
+		errs = append(errs, "Must specify person")
+	} else {
+		switch strings.ToLower(*r.Subject) {
+		case cody, julia, brannigan, malcolm:
+		default:
+			errs = append(errs, "Invalid person")
+		}
 	}
 
 	// ensure either a Date or Score was specified in the report
 	// Date is absolute, Score is relative to the last value
-	// CarryOver should be set if Score should be zero
-	if r.Date == nil && r.Score == 0 && !r.CarryOver {
-		errs = append(errs, fmt.Errorf("Must set date, score, or carryOver"))
+	if r.Date == nil && r.Score == nil {
+		errs = append(errs, "Must set date or score")
 	}
 
 	return errs
@@ -107,8 +105,8 @@ func (r *Report) Save() error {
 	} else {
 		bedtime = r.GetLastOrDefault()
 
-		if r.Score != 0 {
-			bedtime = bedtime.Add(time.Duration(r.Score) * time.Minute)
+		if r.Score != nil {
+			bedtime = bedtime.Add(time.Duration(*r.Score) * time.Minute)
 		}
 
 		if bedtime.Before(time.Now()) {
@@ -121,7 +119,7 @@ func (r *Report) Save() error {
 		}
 	}
 
-	_, err := r.db.Doc(r.Subject).Set(ctx, map[string]time.Time{
+	_, err := r.db.Doc(*r.Subject).Set(ctx, map[string]time.Time{
 		"bedtime": bedtime,
 	})
 
@@ -133,7 +131,7 @@ func (r *Report) Save() error {
 func (r *Report) GetLastOrDefault() time.Time {
 	ctx := context.Background()
 
-	subjectDoc, err := r.db.Doc(r.Subject).Get(ctx)
+	subjectDoc, err := r.db.Doc(*r.Subject).Get(ctx)
 	if !subjectDoc.Exists() || err != nil {
 		return GetDefaultBedtime()
 	}
@@ -162,7 +160,7 @@ func GetAllBedtimes() ([]Report, error) {
 	for _, ds := range docsnaps {
 		var report Report
 
-		report.Subject = ds.Ref.ID
+		report.Subject = &ds.Ref.ID
 
 		bedtimeEntity, err := ds.DataAt("bedtime")
 		if err != nil {

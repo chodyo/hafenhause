@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
     "subject": "brannigan",
-    "date": "2019-04-07T19:20:00-04:00"
+    "date": "2019-04-08T19:20:00-04:00"
 }
 
 ### Simple POST Example
@@ -24,6 +24,5 @@ POST https://us-central1-hafenhaus-227022.cloudfunctions.net/SubmitBedtimeReport
 Content-Type: application/json
 
 {
-    "subject": "malcolm",
-    "carryover": true
+    "score": 100
 }
