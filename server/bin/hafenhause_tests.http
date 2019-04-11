@@ -1,0 +1,28 @@
+### Simple GET Example
+GET https://us-central1-hafenhause.cloudfunctions.net/GetBedtimes
+
+### Simple POST Example
+POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "malcolm",
+    "date": "2019-04-11T19:30:00-04:00"
+}
+
+### Simple POST Example
+POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "subject": "brannigan",
+    "score": 10
+}
+
+### Simple POST Example
+POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
+Content-Type: application/json
+
+{
+    "score": 100
+}

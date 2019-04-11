@@ -1,10 +1,10 @@
-package hafenhaus
+package hafenhause
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/chodyo/hafenhaus/bedtime"
+	"github.com/chodyo/hafenhause/bedtime"
 )
 
 // GetBedtimes gets Bran and Malcolm's current bedtimes

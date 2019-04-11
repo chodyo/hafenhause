@@ -1,11 +1,11 @@
-package hafenhaus
+package hafenhause
 
 import (
 	"log"
 	"net/http"
 	"strings"
 
-	"github.com/chodyo/hafenhaus/bedtime"
+	"github.com/chodyo/hafenhause/bedtime"
 )
 
 // SubmitBedtimeReport receives a bedtimeReport and saves it to a FireStore

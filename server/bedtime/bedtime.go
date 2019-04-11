@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	collection string = "hafenhaus"
+	collection string = "hafenhause"
 
 	defaultTimeZone      string = "America/New_York"
 	defaultBedtimeHour   int    = 7 + 12
@@ -148,8 +148,8 @@ func GetAllBedtimes() ([]Report, error) {
 	ctx := context.Background()
 
 	docsnaps, err := client.GetAll(ctx, []*firestore.DocumentRef{
-		client.Doc("hafenhaus/" + brannigan),
-		client.Doc("hafenhaus/" + malcolm),
+		client.Doc(collection + "/" + brannigan),
+		client.Doc(collection + "/" + malcolm),
 	})
 	if err != nil {
 		return nil, err

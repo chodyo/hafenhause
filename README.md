@@ -1,4 +1,4 @@
-# Hafenhaus
+# Hafenhause
 
 An experimental project where I learn how to use gcloud tools and create some neat applications for my household while I'm at it.
 
@@ -22,7 +22,7 @@ To deploy a new update to a function, run from the server directory
 
 (for example, `bin/deploy.sh SubmitBedtimeReport`)
 
-To test, open [hafenhaus_tests.http](server/bin/hafenhaus_tests.http) and use the REST Client VSCode extension to send POST requests.
+To test, open [hafenhause_tests.http](server/bin/hafenhause_tests.http) and use the REST Client VSCode extension to send POST requests.
 
 ### Functions
 
