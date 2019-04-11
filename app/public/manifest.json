@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Hafenhause",
+  "name": "An app for the Heffner family home",
   "icons": [
     {
       "src": "favicon.ico",
