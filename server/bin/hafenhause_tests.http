@@ -1,28 +1,22 @@
-### Simple GET Example
-GET https://us-central1-hafenhause.cloudfunctions.net/GetBedtimes
+### Simple CREATE Example
+POST https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
 
-### Simple POST Example
-POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
+### Simple READ Example
+GET https://us-central1-hafenhause.cloudfunctions.net/Bedtime
+
+### Simple UPDATE Example
+PUT https://us-central1-hafenhause.cloudfunctions.net/Bedtime
 Content-Type: application/json
 
-{
-    "subject": "malcolm",
-    "date": "2019-04-11T19:30:00-04:00"
-}
+[{
+    "name": "Cody",
+    "hour": 19,
+    "minute": 10
+},{
+    "name": "Julia",
+    "hour": 19,
+    "minute": 20
+}]
 
-### Simple POST Example
-POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
-Content-Type: application/json
-
-{
-    "subject": "brannigan",
-    "score": 10
-}
-
-### Simple POST Example
-POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
-Content-Type: application/json
-
-{
-    "score": 100
-}
+### Simple DELETE Example
+DELETE https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody

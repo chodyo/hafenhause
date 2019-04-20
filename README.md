@@ -13,6 +13,7 @@ A simple bedtime tracker/display. Good behavior one night earns 10m later while 
 ### Things learned
 - Go modules
 - gcloud functions, firestore
+- basic Go HTTP
 
 ### Deploying & testing
 
@@ -20,27 +21,47 @@ To deploy a new update to a function, run from the server directory
 
 `bin/deploy.sh [functionName]`
 
-(for example, `bin/deploy.sh SubmitBedtimeReport`)
+(for example, `bin/deploy.sh Bedtime`)
 
 To test, open [hafenhause_tests.http](server/bin/hafenhause_tests.http) and use the REST Client VSCode extension to send POST requests.
 
 ### Functions
 
-1. `GET /GetBedtimes`
+#### Bedtime
 
-2. `POST /SubmitBedtimeReport`
+1. CREATE: `/Bedtime/name`
+
+Creates a person with the default bedtime.
+   
+2. READ: `/Bedtime/[name]`
+
+Gets the requested person's bedtimes, or all bedtimes if no name is requested.
 
 ``` json
-// SubmitBedtimeReport Request
+// response
+[{
+    "name": "Cody",
+    "hour": 23,
+    "minute": 59
+},{
+    "name": "Julia",
+    "hour": 19,
+    "minute": 30
+}]
+```
 
-// Set the time explicitly
+3. UPDATE: `/Bedtime/name`
+
+Updates the person's bedtime, or all bedtimes if no name is specified.
+
+``` json
+// request
 {
-    "subject": "cody",
-    "date": "2019-04-07T19:30:00-04:00"
-}
-// Record the score and let the server figure out the new time
-{
-    "subject": "cody",
-    "score": 10
+    "hour": 20,
+    "minute": 0
 }
 ```
+   
+4. DELETE: `/Bedtime/name`
+
+Deletes the person's bedtime.
