@@ -2,27 +2,40 @@ package hafenhause
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"path"
+	"time"
+
+	"cloud.google.com/go/firestore"
 )
 
 type bedtimedb interface {
-	createBedtimes([]string) error
-	readBedtimes([]string) ([]bedtime, error)
-	updateBedtimes([]bedtime) error
-	deleteBedtimes([]string) error
+	create(map[docpath]interface{}) error
+	read(...docpath) ([]*firestore.DocumentSnapshot, error)
+	update(map[docpath]interface{}) error
+	delete(...docpath) error
+
+	getBedtimes(...docpath) ([]bedtime, error)
+
+	combine(docpath, ...string) docpath
+	// docref(docpath, ...string) *firestore.DocumentRef
 }
 
 type bedtime struct {
-	Name   string `json:"name"`
-	Hour   int    `json:"hour"`
-	Minute int    `json:"minute"`
+	Name    *string    `json:"name,omitempty"`
+	Hour    int        `json:"hour"`
+	Minute  int        `json:"minute"`
+	Updated *time.Time `json:"updated,omitempty"`
 }
 
+var (
+	errAlreadyExists         = errors.New("Resource already exists")
+	errNotFound              = errors.New("Resource not found")
+	errUnsupportedHTTPMethod = errors.New("Unsupported HTTP method")
+)
+
 // Bedtime is the web interface between the client and the raw bedtime data
-// GET: returns a list of
-// PUT: receives a list of bedtime values and updates
 func Bedtime(w http.ResponseWriter, r *http.Request) {
 	db := newHafenhausedb()
 	processRequest(w, r, db)
@@ -33,6 +46,8 @@ func processRequest(w http.ResponseWriter, r *http.Request, db bedtimedb) {
 	var err error
 	defer func() {
 		if err != nil {
+			statusCode := statusCodeFromErr(err)
+			w.WriteHeader(statusCode)
 			panic(err)
 		}
 		// w.Header().Set("Content-Type", "application/json")
@@ -44,13 +59,39 @@ func processRequest(w http.ResponseWriter, r *http.Request, db bedtimedb) {
 	// CREATE
 	case http.MethodPost:
 		name := path.Base(r.URL.Path)
-		err = db.createBedtimes([]string{name})
+		switch name {
+		case brannigan, malcolm:
+			var defaultsList []bedtime
+			defaultsList, err = db.getBedtimes(BedtimeDefaultsPath)
+			if err != nil {
+				return
+			}
+
+			defaults := defaultsList[0]
+
+			path := db.combine(BedtimePeoplePath, name)
+
+			now := time.Now()
+			bedtime := bedtime{
+				Hour:    defaults.Hour,
+				Minute:  defaults.Minute,
+				Updated: &now,
+			}
+
+			err = db.create(map[docpath]interface{}{path: bedtime})
+
+		default:
+			err = errNotFound
+		}
 
 	// READ
 	case http.MethodGet:
-		names := []string{brannigan, malcolm}
+		docpaths := []docpath{
+			db.combine(BedtimePeoplePath, brannigan),
+			db.combine(BedtimePeoplePath, malcolm),
+		}
 		var bedtimes []bedtime
-		if bedtimes, err = db.readBedtimes(names); err != nil {
+		if bedtimes, err = db.getBedtimes(docpaths...); err != nil {
 			return
 		}
 		responseBody, err = json.Marshal(bedtimes)
@@ -61,14 +102,66 @@ func processRequest(w http.ResponseWriter, r *http.Request, db bedtimedb) {
 		if err = json.NewDecoder(r.Body).Decode(&bedtimes); err != nil {
 			return
 		}
-		err = db.updateBedtimes(bedtimes)
+
+		var updateEntries map[docpath]interface{}
+		for _, bedtime := range bedtimes {
+			path := db.combine(BedtimePeoplePath, *bedtime.Name)
+			updateEntries[path] = bedtime
+		}
+
+		err = db.update(updateEntries)
 
 	// DELETE
 	case http.MethodDelete:
 		name := path.Base(r.URL.Path)
-		err = db.deleteBedtimes([]string{name})
+		switch name {
+		case brannigan, malcolm:
+			path := db.combine(BedtimePeoplePath, name)
+			err = db.delete(path)
+		default:
+			err = errNotFound
+		}
 
 	default:
-		err = fmt.Errorf("Unsupported HTTP method")
+		err = errUnsupportedHTTPMethod
 	}
+}
+
+func statusCodeFromErr(e error) int {
+	switch e {
+	case errAlreadyExists, errUnsupportedHTTPMethod:
+		return http.StatusBadRequest
+
+	case errNotFound:
+		return http.StatusNotFound
+
+	default:
+		return http.StatusInternalServerError
+
+	}
+}
+
+func (h hafenhausedb) getBedtimes(paths ...docpath) ([]bedtime, error) {
+	docsnaps, err := h.read(paths...)
+	if err != nil {
+		return nil, err
+	} else if len(docsnaps) != len(paths) {
+		return nil, errNotFound
+	}
+
+	var bedtimes []bedtime
+
+	for _, ds := range docsnaps {
+		var bedtime bedtime
+
+		if err := ds.DataTo(&bedtime); err != nil {
+			return nil, err
+		}
+
+		bedtime.Name = &ds.Ref.ID
+
+		bedtimes = append(bedtimes, bedtime)
+	}
+
+	return bedtimes, nil
 }

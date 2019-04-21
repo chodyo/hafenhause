@@ -2,21 +2,16 @@
 POST https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
 
 ### Simple READ Example
-GET https://us-central1-hafenhause.cloudfunctions.net/Bedtime
+GET https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
 
 ### Simple UPDATE Example
-PUT https://us-central1-hafenhause.cloudfunctions.net/Bedtime
+PUT https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
 Content-Type: application/json
 
-[{
-    "name": "Cody",
+{
     "hour": 19,
     "minute": 10
-},{
-    "name": "Julia",
-    "hour": 19,
-    "minute": 20
-}]
+}
 
 ### Simple DELETE Example
 DELETE https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
