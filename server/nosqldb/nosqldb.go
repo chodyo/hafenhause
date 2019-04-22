@@ -10,17 +10,16 @@ import (
 )
 
 type nosqldb struct {
-	collection string
-	projectID  string
-	client     *firestore.Client
+	projectID string
+	client    *firestore.Client
 }
 
 // NosqldbContract is the public interface for the database functions
 type NosqldbContract interface {
-	Create(docName, key string, value interface{}) error
-	Read(docName string, keys []string) ([]interface{}, error)
-	Update(docName, key string, value interface{}) error
-	Delete(docName, key string) error
+	Create(docName string, docContents interface{}) (err error)
+	Read(docName string) (docContents map[string]interface{}, err error)
+	Update(docName string, docContents interface{}) (err error)
+	Delete(docName string, fields ...string) (err error)
 }
 
 var (
@@ -28,7 +27,7 @@ var (
 	ErrNotFound      = errors.New("Resource not found")
 )
 
-func NewNosqldb(collectionName string) nosqldb {
+func NewNosqldb() nosqldb {
 	ctx := context.Background()
 
 	projectID := os.Getenv("GCLOUD_PROJECT")
@@ -42,77 +41,70 @@ func NewNosqldb(collectionName string) nosqldb {
 	}
 
 	return nosqldb{
-		collection: collectionName,
-		projectID:  projectID,
-		client:     client,
+		projectID: projectID,
+		client:    client,
 	}
 }
 
-func (n nosqldb) Create(docName, key string, value interface{}) (err error) {
+func (n nosqldb) Create(docName string, docContents interface{}) (err error) {
 	ctx := context.Background()
 
-	doc := n.client.Collection(n.collection).Doc(docName)
+	doc := n.client.Doc(docName)
 
-	var docSnapshot *firestore.DocumentSnapshot
-	if docSnapshot, err = doc.Get(ctx); err != nil {
-		return err
-	}
-
-	if _, err = docSnapshot.DataAt(key); err == nil {
-		return ErrAlreadyExists
-	}
-
-	_, err = doc.Update(ctx, []firestore.Update{{
-		Path:  key,
-		Value: value,
-	}})
+	// TODO: check if field already exists
+	// Overwrite only the fields in the map; preserve all others
+	_, err = doc.Set(ctx, docContents, firestore.MergeAll)
 
 	return
 }
 
-func (n nosqldb) Read(docName string, keys []string) (objects []interface{}, err error) {
+func (n nosqldb) Read(docName string) (docContents map[string]interface{}, err error) {
 	ctx := context.Background()
 
-	var statesSnapshot *firestore.DocumentSnapshot
-	if statesSnapshot, err = n.client.Collection(n.collection).Doc(docName).Get(ctx); err != nil {
+	var docSnapshot *firestore.DocumentSnapshot
+	if docSnapshot, err = n.client.Doc(docName).Get(ctx); err != nil {
 		return
 	}
 
-	for _, key := range keys {
-		var object interface{}
-		if object, err = statesSnapshot.DataAt(key); err != nil {
-			return nil, ErrNotFound
-		}
-
-		objects = append(objects, object)
-	}
+	docContents = docSnapshot.Data()
 
 	return
 }
 
-func (n nosqldb) Update(docName, key string, value interface{}) (err error) {
+func (n nosqldb) Update(docName string, docContents interface{}) (err error) {
 	ctx := context.Background()
 
-	doc := n.client.Collection(n.collection).Doc(docName)
+	doc := n.client.Doc(docName)
 
-	var docSnapshot *firestore.DocumentSnapshot
-	if docSnapshot, err = doc.Get(ctx); err != nil {
-		return err
-	}
+	// TODO: check if field is missing
+	// Overwrite only the fields in the map; preserve all others
+	_, err = doc.Set(ctx, docContents, firestore.MergeAll)
 
-	if _, err = docSnapshot.DataAt(key); err != nil {
-		return ErrNotFound
-	}
-
-	_, err = doc.Update(ctx, []firestore.Update{{
-		Path:  key,
-		Value: value,
-	}})
-
-	return err
+	return
 }
 
-func (n nosqldb) Delete(docName, key string) error {
-	var empty struct{}
-	return n.Update(docName, key, empty)
+// Delete will delete a document if no fields are given, or it will delete all
+// given fields in a document.
+func (n nosqldb) Delete(docName string, fields ...string) (err error) {
+	ctx := context.Background()
+
+	doc := n.client.Doc(docName)
+
+	if fields != nil {
+		var updates []firestore.Update
+
+		for _, field := range fields {
+			update := firestore.Update{Path: field, Value: firestore.Delete}
+
+			updates = append(updates, update)
+		}
+
+		_, err = doc.Update(ctx, updates)
+
+		return
+	}
+
+	_, err = doc.Delete(ctx)
+
+	return
 }

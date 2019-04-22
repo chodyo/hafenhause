@@ -15,10 +15,10 @@ import (
 )
 
 type bedtimedbContract interface {
-	createDefaultBedtime(string) error
-	getBedtimes(string) ([]bedtime, error)
-	updateBedtime(string, bedtime) error
-	deleteBedtime(string) error
+	createDefaultBedtime(name string) (err error)
+	getBedtimes(name string) (bedtimes []bedtime, err error)
+	updateBedtime(name string, bedtime bedtime) (err error)
+	deleteBedtime(name string) (err error)
 }
 
 type bedtime struct {
