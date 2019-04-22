@@ -25,13 +25,13 @@ func (db bedtimedb) createDefaultBedtime(name string) (err error) {
 	var bedtimeDefaults []interface{}
 
 	defaultsKey := []string{"defaults.bedtime"}
-	if bedtimeDefaults, err = db.Read("static", defaultsKey); err != nil {
+	if bedtimeDefaults, err = db.Read("static", defaultsKey); err != nil || len(bedtimeDefaults) != 1 {
 		log.Printf("Failed to get defaults with err: %v\n", err)
 		return
 	}
 
 	var defaults bedtime
-	if err = mapstructure.Decode(bedtimeDefaults, &defaults); err != nil {
+	if err = mapstructure.Decode(bedtimeDefaults[0], &defaults); err != nil {
 		log.Printf("Failed to decode defaults with err: %v\n", err)
 		return
 	}

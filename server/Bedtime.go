@@ -108,11 +108,11 @@ func processRequest(w http.ResponseWriter, r *http.Request, db bedtimedbContract
 func getNamePathParam(URL *url.URL) (name string, err error) {
 	path := URL.Path
 
-	if err = parth.Segment(path, 1, &name); err != nil {
+	if err = parth.Segment(path, 0, &name); err != nil {
 		err = errBadRequest
 	}
 
-	log.Printf("Found query param name=%s\n", name)
+	log.Printf("Found path param name=%s\n", name)
 
 	return
 }
