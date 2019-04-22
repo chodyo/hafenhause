@@ -1,17 +1,27 @@
+@baseUrl = https://us-central1-hafenhause.cloudfunctions.net
+
+# Bedtime requests
+@path = Bedtime
+@name = Cody
+
 ### Simple CREATE Example
-POST https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
+POST {{baseUrl}}/{{path}}/{{name}}
 
 ### Simple READ Example
-GET https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
+GET {{baseUrl}}/{{path}}
+    ?name={{name}}
+
+### Bulk READ Example
+GET {{baseUrl}}/{{path}}
 
 ### Simple UPDATE Example
-PUT https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
+PUT {{baseUrl}}/{{path}}/{{name}}
 Content-Type: application/json
 
 {
-    "hour": 19,
-    "minute": 10
+    "hour": 22,
+    "minute": 0
 }
 
 ### Simple DELETE Example
-DELETE https://us-central1-hafenhause.cloudfunctions.net/Bedtime/Cody
+DELETE {{baseUrl}}/{{path}}/{{name}}
