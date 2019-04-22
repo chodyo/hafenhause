@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/chodyo/hafenhause/nosqldb"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 type bedtimedb struct {
@@ -42,7 +44,11 @@ func (db bedtimedb) createDefaultBedtime(name string) (err error) {
 		return
 	}
 
-	defaultBedtime := defaultsContents[bedtimeField].(bedtime)
+	var defaultBedtime bedtime
+	if err = mapstructure.Decode(defaultsContents[bedtimeField], defaultBedtime); err != nil {
+		log.Printf("Failed to decode defaults with err: %v\n", err)
+		return
+	}
 
 	now := time.Now()
 	toCreate := map[string]bedtime{
@@ -74,7 +80,11 @@ func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
 		return
 	}
 
-	bedtime := docContents[bedtimeField].(bedtime)
+	var bedtime bedtime
+	if err = mapstructure.Decode(docContents[bedtimeField], bedtime); err != nil {
+		log.Printf("Failed to decode bedtime with err: %v\n", err)
+		return
+	}
 
 	bedtime.Name = &name
 	bedtime.Updated = nil
