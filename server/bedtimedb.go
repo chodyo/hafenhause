@@ -45,7 +45,7 @@ func (db bedtimedb) createDefaultBedtime(name string) (err error) {
 	}
 
 	var defaultBedtime bedtime
-	if err = mapstructure.Decode(defaultsContents[bedtimeField], defaultBedtime); err != nil {
+	if err = mapstructure.Decode(defaultsContents[bedtimeField], &defaultBedtime); err != nil {
 		log.Printf("Failed to decode defaults with err: %v\n", err)
 		return
 	}
@@ -81,7 +81,7 @@ func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
 	}
 
 	var bedtime bedtime
-	if err = mapstructure.Decode(docContents[bedtimeField], bedtime); err != nil {
+	if err = mapstructure.Decode(docContents[bedtimeField], &bedtime); err != nil {
 		log.Printf("Failed to decode bedtime with err: %v\n", err)
 		return
 	}
