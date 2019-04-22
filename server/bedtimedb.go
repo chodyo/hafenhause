@@ -62,7 +62,13 @@ func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
 	}
 
 	for _, field := range fields {
-		bedtimes = append(bedtimes, field.(bedtime))
+		var bedtime bedtime
+		if err = mapstructure.Decode(field, &bedtime); err != nil {
+			log.Printf("Failed to decode bedtime with err: %v\n", err)
+			return
+		}
+
+		bedtimes = append(bedtimes, bedtime)
 	}
 
 	return
