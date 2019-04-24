@@ -29,13 +29,13 @@ To test, open [hafenhause_tests.http](server/bin/hafenhause_tests.http) and use 
 
 #### Bedtime
 
-1. CREATE: `/Bedtime/name`
+1. CREATE: `POST /Bedtime/:name`
 
 Creates a person with the default bedtime.
    
-2. READ: `/Bedtime/[name]`
+2. READ: `GET /Bedtime/?name=:name`
 
-Gets the requested person's bedtimes, or all bedtimes if no name is requested.
+Gets the requested person's bedtimes, or all bedtimes if no name is specified.
 
 ``` json
 // response
@@ -45,23 +45,23 @@ Gets the requested person's bedtimes, or all bedtimes if no name is requested.
     "minute": 59
 },{
     "name": "Julia",
-    "hour": 19,
-    "minute": 30
+    "hour": 22,
+    "minute": 0
 }]
 ```
 
-3. UPDATE: `/Bedtime/name`
+3. UPDATE: `PUT /Bedtime/:name`
 
-Updates the person's bedtime, or all bedtimes if no name is specified.
+Updates the person's bedtime. (TODO: don't create if DNE)
 
 ``` json
 // request
 {
-    "hour": 20,
+    "hour": 22,
     "minute": 0
 }
 ```
    
-4. DELETE: `/Bedtime/name`
+4. DELETE: `DELETE /Bedtime/:name`
 
-Deletes the person's bedtime.
+Deletes the person's bedtime. Does not delete the person.
