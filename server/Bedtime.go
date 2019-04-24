@@ -22,10 +22,10 @@ type bedtimedbContract interface {
 }
 
 type bedtime struct {
-	Name    *string    `json:"name" firestore:"name,omitempty"`
-	Hour    int        `json:"hour" firestore:"hour"`
-	Minute  int        `json:"minute" firestore:"minute"`
-	Updated *time.Time `json:"updated,omitempty" firestore:"updated"`
+	Name    *string   `json:"name" firestore:"name,omitempty"`
+	Hour    int       `json:"hour" firestore:"hour"`
+	Minute  int       `json:"minute" firestore:"minute"`
+	Updated time.Time `json:"updated" firestore:"updated"`
 }
 
 var (

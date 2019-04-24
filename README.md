@@ -42,17 +42,19 @@ Gets the requested person's bedtimes, or all bedtimes if no name is specified.
 [{
     "name": "Cody",
     "hour": 23,
-    "minute": 59
+    "minute": 59,
+    "updated": "2009-11-10T23:00:00.000000Z"
 },{
     "name": "Julia",
     "hour": 22,
-    "minute": 0
+    "minute": 0,
+    "updated": "2019-04-24T11:19:02.838171Z"
 }]
 ```
 
 3. UPDATE: `PUT /Bedtime/:name`
 
-Updates the person's bedtime. (TODO: don't create if DNE)
+Updates the person's bedtime. (TODO: don't create if doc or field DNE)
 
 ``` json
 // request

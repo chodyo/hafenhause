@@ -53,7 +53,7 @@ func (db bedtimedb) createDefaultBedtime(name string) (err error) {
 		bedtimeField: bedtime{
 			Hour:    defaultBedtime.Hour,
 			Minute:  defaultBedtime.Minute,
-			Updated: &now,
+			Updated: now,
 		}}
 
 	newDocPath := getDocPath(name)
@@ -88,7 +88,6 @@ func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
 
 			personName := name
 			bedtime.Name = &personName
-			bedtime.Updated = nil
 
 			bedtimes = append(bedtimes, bedtime)
 		}
@@ -115,7 +114,6 @@ func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
 	}
 
 	bedtime.Name = &name
-	bedtime.Updated = nil
 
 	bedtimes = append(bedtimes, bedtime)
 
@@ -126,7 +124,7 @@ func (db bedtimedb) updateBedtime(name string, b bedtime) (err error) {
 	docPath := getDocPath(name)
 
 	now := time.Now()
-	b.Updated = &now
+	b.Updated = now
 
 	toUpdate := map[string]bedtime{
 		bedtimeField: b,
