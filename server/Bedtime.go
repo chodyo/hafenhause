@@ -28,9 +28,9 @@ type bedtime struct {
 	Updated time.Time `json:"updated" firestore:"updated"`
 }
 
-var (
-	errBadRequest = errors.New("Bad request")
-)
+const accessWhitelist = "https://hafenhause.appspot.com"
+
+var errBadRequest = errors.New("Bad request")
 
 // Bedtime is the web interface between the client and the raw bedtime data
 func Bedtime(w http.ResponseWriter, r *http.Request) {
@@ -52,10 +52,10 @@ func Bedtime(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Processing request with URL=%s and body=%+v\n", r.URL.String(), r.Body)
 
-	responseBody, err = processRequest(w, r, db)
+	responseBody, err = processRequest(r, db)
 }
 
-func processRequest(w http.ResponseWriter, r *http.Request, db bedtimedbContract) (responseBody []byte, err error) {
+func processRequest(r *http.Request, db bedtimedbContract) (responseBody []byte, err error) {
 	switch r.Method {
 	// CREATE
 	case http.MethodPost:
@@ -103,6 +103,13 @@ func processRequest(w http.ResponseWriter, r *http.Request, db bedtimedbContract
 	}
 
 	return
+}
+
+func useCORS(w *http.ResponseWriter) {
+	*w.Header().Set("Access-Control-Allow-Origin", accessWhitelist)
+	*w.Header().Set("Vary", "Origin")
+	*w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	*w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
 
 func getNamePathParam(URL *url.URL) (name string, err error) {
