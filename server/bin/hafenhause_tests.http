@@ -1,28 +1,27 @@
-### Simple GET Example
-GET https://us-central1-hafenhause.cloudfunctions.net/GetBedtimes
+@baseUrl = https://us-central1-hafenhause.cloudfunctions.net
 
-### Simple POST Example
-POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
+# Bedtime requests
+@path = Bedtime
+@name = dff
+
+### Simple CREATE Example
+POST {{baseUrl}}/{{path}}/{{name}}
+
+### Simple READ Example
+GET {{baseUrl}}/{{path}}
+    ?name={{name}}
+
+### Bulk READ Example
+GET {{baseUrl}}/{{path}}
+
+### Simple UPDATE Example
+PUT {{baseUrl}}/{{path}}/{{name}}
 Content-Type: application/json
 
 {
-    "subject": "malcolm",
-    "date": "2019-04-11T19:30:00-04:00"
+    "hour": 22,
+    "minute": 0
 }
 
-### Simple POST Example
-POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
-Content-Type: application/json
-
-{
-    "subject": "brannigan",
-    "score": 10
-}
-
-### Simple POST Example
-POST https://us-central1-hafenhause.cloudfunctions.net/SubmitBedtimeReport
-Content-Type: application/json
-
-{
-    "score": 100
-}
+### Simple DELETE Example
+DELETE {{baseUrl}}/{{path}}/{{name}}
