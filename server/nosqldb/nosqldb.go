@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 )
 
 type nosqldb struct {
@@ -18,6 +19,7 @@ type nosqldb struct {
 type NosqldbContract interface {
 	Create(docName string, docContents interface{}) (err error)
 	Read(docName string) (docContents map[string]interface{}, err error)
+	Query(collectionName string, filters ...Filter) (docContents map[string]interface{}, err error)
 	Update(docName string, docContents interface{}) (err error)
 	Delete(docName string, fields ...string) (err error)
 }
@@ -67,6 +69,41 @@ func (n nosqldb) Read(docName string) (docContents map[string]interface{}, err e
 	}
 
 	docContents = docSnapshot.Data()
+
+	return
+}
+
+func (n nosqldb) Query(collectionName string, filters ...Filter) (docContents map[string]interface{}, err error) {
+	ctx := context.Background()
+
+	docContents = map[string]interface{}{}
+
+	col := n.client.Collection(collectionName)
+
+	var query firestore.Query
+	for i, filter := range filters {
+		key, op, value := filter.Tuple()
+		if i == 0 {
+			query = col.Where(key, op, value)
+		} else {
+			query = query.Where(key, op, value)
+		}
+	}
+
+	iter := query.Documents(ctx)
+
+	for {
+		var doc *firestore.DocumentSnapshot
+		doc, err = iter.Next()
+		if err == iterator.Done {
+			err = nil
+			break
+		}
+		if err != nil {
+			return
+		}
+		docContents[doc.Ref.ID] = doc.Data()
+	}
 
 	return
 }

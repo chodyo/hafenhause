@@ -15,19 +15,16 @@ type bedtimedb struct {
 }
 
 const (
-	cRoot = "hafenhause"
-
-	// doc Person name; or
-	dDefaults = "Defaults"
-
-	bedtimeField = "bedtime"
+	rootCollection = "hafenhause"
+	defaultsDoc    = "Defaults"
+	bedtimeField   = "bedtime"
 )
 
 // ":root/:name/:function" e.g.
 // "hafenhause/Cody/bedtime" or
 // "hafenhause/Defaults/bedtime"
 func getDocPath(docName string) string {
-	return fmt.Sprintf("%s/%s", cRoot, docName)
+	return fmt.Sprintf("%s/%s", rootCollection, docName)
 }
 
 func newBedtimedb() bedtimedb {
@@ -36,10 +33,10 @@ func newBedtimedb() bedtimedb {
 }
 
 func (db bedtimedb) createDefaultBedtime(name string) (err error) {
-	defaultsPath := getDocPath(dDefaults)
+	defaultsPath := getDocPath(defaultsDoc)
 
 	var defaultsContents map[string]interface{}
-	if defaultsContents, err = db.Read(defaultsPath); err != nil || len(defaultsContents) != 1 {
+	if defaultsContents, err = db.Read(defaultsPath); err != nil {
 		log.Printf("Failed to get defaults with err: %v\n", err)
 		return
 	}
@@ -51,7 +48,8 @@ func (db bedtimedb) createDefaultBedtime(name string) (err error) {
 	}
 
 	now := time.Now()
-	toCreate := map[string]bedtime{
+	toCreate := map[string]interface{}{
+		"type": nosqldb.PersonType,
 		bedtimeField: bedtime{
 			Hour:    defaultBedtime.Hour,
 			Minute:  defaultBedtime.Minute,
@@ -68,8 +66,34 @@ func (db bedtimedb) createDefaultBedtime(name string) (err error) {
 }
 
 func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
-	if name == "" {
-		// TODO: get all
+	if name == "*" {
+		var namesToDocs map[string]interface{}
+		if namesToDocs, err = db.Query(rootCollection, nosqldb.PersonDoc); err != nil {
+			log.Printf("Failed to query people from db with err: %v\n", err)
+			return
+		}
+
+		for name, doc := range namesToDocs {
+			var bedtime bedtime
+
+			data := doc.(map[string]interface{})[bedtimeField]
+			if data == nil {
+				continue
+			}
+
+			if err = mapstructure.Decode(data, &bedtime); err != nil {
+				log.Printf("Failed to decode bedtime with err: %v\n", err)
+				return
+			}
+
+			personName := name
+			bedtime.Name = &personName
+			bedtime.Updated = nil
+
+			bedtimes = append(bedtimes, bedtime)
+		}
+
+		return
 	}
 
 	docPath := getDocPath(name)
