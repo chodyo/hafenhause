@@ -104,6 +104,10 @@ func (db bedtimedb) getBedtimes(name string) (bedtimes []bedtime, err error) {
 		return
 	}
 
+	if docContents[bedtimeField] == nil {
+		return
+	}
+
 	var bedtime bedtime
 	if err = mapstructure.Decode(docContents[bedtimeField], &bedtime); err != nil {
 		log.Printf("Failed to decode bedtime with err: %v\n", err)

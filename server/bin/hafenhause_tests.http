@@ -2,7 +2,7 @@
 
 # Bedtime requests
 @path = Bedtime
-@name = Cody
+@name = dff
 
 ### Simple CREATE Example
 POST {{baseUrl}}/{{path}}/{{name}}

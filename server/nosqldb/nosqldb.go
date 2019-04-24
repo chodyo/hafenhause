@@ -8,6 +8,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type nosqldb struct {
@@ -64,7 +66,10 @@ func (n nosqldb) Read(docName string) (docContents map[string]interface{}, err e
 	ctx := context.Background()
 
 	var docSnapshot *firestore.DocumentSnapshot
-	if docSnapshot, err = n.client.Doc(docName).Get(ctx); err != nil {
+	if docSnapshot, err = n.client.Doc(docName).Get(ctx); grpc.Code(err) == codes.NotFound {
+		err = ErrNotFound
+		return
+	} else if err != nil {
 		return
 	}
 
