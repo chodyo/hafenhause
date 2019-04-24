@@ -50,12 +50,15 @@ func Bedtime(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	// The basic CORS origin header needs to be on every response
+	w.Header().Set("Access-Control-Allow-Origin", accessWhitelist)
+
 	log.Printf("Processing request with URL=%s and body=%+v\n", r.URL.String(), r.Body)
 
-	responseBody, err = processRequest(r, db)
+	responseBody, err = processRequest(&w, r, db)
 }
 
-func processRequest(r *http.Request, db bedtimedbContract) (responseBody []byte, err error) {
+func processRequest(w *http.ResponseWriter, r *http.Request, db bedtimedbContract) (responseBody []byte, err error) {
 	switch r.Method {
 	// CREATE
 	case http.MethodPost:
@@ -98,18 +101,19 @@ func processRequest(r *http.Request, db bedtimedbContract) (responseBody []byte,
 
 		err = db.deleteBedtime(name)
 
+	// OPTIONS
+	case http.MethodOptions:
+		// These advanced options tell browsers how to handle CORS. They do not
+		// need to be set on every request.
+		(*w).Header().Set("Vary", "Origin")
+		(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
 	default:
 		err = http.ErrNotSupported
 	}
 
 	return
-}
-
-func useCORS(w *http.ResponseWriter) {
-	*w.Header().Set("Access-Control-Allow-Origin", accessWhitelist)
-	*w.Header().Set("Vary", "Origin")
-	*w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	*w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
 
 func getNamePathParam(URL *url.URL) (name string, err error) {
