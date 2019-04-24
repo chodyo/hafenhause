@@ -11,13 +11,16 @@ const liStyle = {
     float: "left"
 }
 
+const dateDisplayOpts = { month: "short", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", millisecond: "numeric" }
+
+
 export default class FamilyMembers extends React.Component {
     state = {
         members: []
     }
 
     componentDidMount() {
-        axios.get(`https://us-central1-hafenhause.cloudfunctions.net/GetBedtimes`)
+        axios.get(`https://us-central1-hafenhause.cloudfunctions.net/Bedtime`)
             .then(res => {
                 const members = res.data;
                 this.setState({ members });
@@ -28,13 +31,23 @@ export default class FamilyMembers extends React.Component {
         return (
             <ul style={ulStyle}>
                 {this.state.members.map(member => {
-                    let options = { month: "short", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", millisecond: "numeric" }
-                    let date = new Date(member.date).toLocaleString("en-US", options);
+                    let updated = new Date(member.updated);
+                    let bedtime = new Date(updated);
+
+                    bedtime.setHours(member.hour);
+                    bedtime.setMinutes(member.minute);
+
+                    // if a time gets updated after the bedtime has passed, it
+                    // was referring to the next day
+                    if (bedtime < updated) {
+                        bedtime.setDate(bedtime.getDate() + 1);
+                    }
+
                     return <li style={liStyle}>
                         <div>{member.name}</div>
-                        <div>{date}</div>
+                        <div>{bedtime.toLocaleString("en-US", dateDisplayOpts)}</div>
                         <Countdown
-                            date={member.date}
+                            date={bedtime}
                             daysInHours={true}
                         />
                     </li>
