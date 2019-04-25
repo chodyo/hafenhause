@@ -31,3 +31,40 @@
     transform: rotate(360deg);
   }
 }
+
+/* # COLORFUL DIGIT CLOCK */
+
+.u-absoluteCenter {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	margin: auto;
+}
+
+body {
+	background-color: #222222;
+}
+
+.clock {
+	.u-absoluteCenter();
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.digit {
+	width: 100px;
+	height: 100px;
+}
+
+.digit:not(:last-child) {
+	margin-right: 10px;
+}
+
+.segment {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	float: left;
+}
+
+/* # END COLORFUL DIGIT CLOCK */

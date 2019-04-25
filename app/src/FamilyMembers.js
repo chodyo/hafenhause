@@ -42,14 +42,16 @@ export default class FamilyMembers extends React.Component {
                         bedtime.setDate(bedtime.getDate() + 1);
                     }
 
-                    return <li key={member.name} style={liStyle}>
-                        <div>{member.name}</div>
-                        <div>{bedtime.toLocaleString("en-US", dateDisplayOpts)}</div>
-                        <Countdown
-                            date={bedtime}
-                            daysInHours={true}
-                        />
-                    </li>
+                    return (
+                        <li key={member.name} style={liStyle}>
+                            <div>{member.name}</div>
+                            <div>{bedtime.toLocaleString("en-US", dateDisplayOpts)}</div>
+                            <Countdown
+                                date={bedtime}
+                                daysInHours={true}
+                            />
+                        </li>
+                    );
                 })}
             </ul>
         );
