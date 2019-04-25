@@ -34,8 +34,7 @@ export default class FamilyMembers extends React.Component {
                     let updated = new Date(member.updated);
                     let bedtime = new Date(updated);
 
-                    bedtime.setHours(member.hour);
-                    bedtime.setMinutes(member.minute);
+                    bedtime.setHours(member.hour, member.minute, 0, 0);
 
                     // if a time gets updated after the bedtime has passed, it
                     // was referring to the next day
@@ -43,7 +42,7 @@ export default class FamilyMembers extends React.Component {
                         bedtime.setDate(bedtime.getDate() + 1);
                     }
 
-                    return <li style={liStyle}>
+                    return <li key={member.name} style={liStyle}>
                         <div>{member.name}</div>
                         <div>{bedtime.toLocaleString("en-US", dateDisplayOpts)}</div>
                         <Countdown
