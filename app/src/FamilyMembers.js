@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import Countdown from 'react-countdown-now';
+import ColorfulDigitCountdown from './ColorfulDigitCountdown';
 
 const ulStyle = {
     listStyle: "none"
@@ -15,6 +15,7 @@ const dateDisplayOpts = { month: "short", day: "numeric", hour: "numeric", minut
 
 
 export default class FamilyMembers extends React.Component {
+
     state = {
         members: []
     }
@@ -46,10 +47,7 @@ export default class FamilyMembers extends React.Component {
                         <li key={member.name} style={liStyle}>
                             <div>{member.name}</div>
                             <div>{bedtime.toLocaleString("en-US", dateDisplayOpts)}</div>
-                            <Countdown
-                                date={bedtime}
-                                daysInHours={true}
-                            />
+                            <ColorfulDigitCountdown date={bedtime} />
                         </li>
                     );
                 })}

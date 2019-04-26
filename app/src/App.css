@@ -45,19 +45,21 @@ body {
 }
 
 .clock {
-	.u-absoluteCenter();
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	margin: auto;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 .digit {
-	width: 100px;
-	height: 100px;
+	width: 90px;
+	height: 130px;
 }
 
 .digit:not(:last-child) {
-	margin-right: 10px;
+	margin-right: 0px;
 }
 
 .segment {
@@ -66,5 +68,7 @@ body {
 	height: 10px;
 	float: left;
 }
+
+
 
 /* # END COLORFUL DIGIT CLOCK */
