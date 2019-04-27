@@ -13,4 +13,6 @@ if [[ ${goBuildRes} -ne 0 ]]; then
     exit goBuildRes
 fi
 
-gcloud functions deploy $1 --runtime go111 --trigger-http
+set +x
+
+gcloud functions deploy $1 --env-vars-file .env-prod.yaml --runtime go111 --trigger-http
