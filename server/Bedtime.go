@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/chodyo/hafenhause/nosqldb"
@@ -28,9 +29,10 @@ type bedtime struct {
 	Updated time.Time `json:"updated" firestore:"updated"`
 }
 
-const accessWhitelist = "https://hafenhause.appspot.com"
-
-var errBadRequest = errors.New("Bad request")
+var (
+	accessAllowedOrigin = os.Getenv("CORS_ALLOWED_ORIGIN")
+	errBadRequest       = errors.New("Bad request")
+)
 
 // Bedtime is the web interface between the client and the raw bedtime data
 func Bedtime(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +53,7 @@ func Bedtime(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// The basic CORS origin header needs to be on every response
-	w.Header().Set("Access-Control-Allow-Origin", accessWhitelist)
+	w.Header().Set("Access-Control-Allow-Origin", accessAllowedOrigin)
 
 	log.Printf("Processing request with URL=%s and body=%+v\n", r.URL.String(), r.Body)
 
