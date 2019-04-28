@@ -186,13 +186,22 @@ const digits = {
     ], ' ': []
 };
 
-function randomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var j = 0; j < 6; j++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+const segmentStyle = {
+    display: "inline-block",
+    width: "10px",
+    height: "10px",
+    float: "left",
+}
+
+const digitStyle = {
+    width: "90px", /* must be set to the number of columns in each digit */
+}
+
+const colorfulDigitCountdownStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: "1em",
 }
 
 function Segment(props) {
@@ -201,25 +210,38 @@ function Segment(props) {
         backgroundColor: props.active ? props.color : 'transparent'
     };
 
-    return (<div className="segment" style={style} />);
+    return (<div className="segment" style={{ ...style, ...segmentStyle }} />);
 }
 
 class Digit extends React.Component {
 
+    componentDidMount() {
+        this.randomColor = this.randomColor.bind(this);
+    }
+
     shouldComponentUpdate(nextProps) {
         return nextProps.data !== this.props.data;
+    }
+
+    randomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var j = 0; j < 6; j++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 
     render() {
         const segments = this.props.data.map((active) => {
             return {
                 active: active,
-                color: randomColor(),
+                color: this.randomColor(),
             };
         })
 
         return (
-            <div className="digit">
+            <div className="digit" style={digitStyle}>
                 {segments.map((segment, index) => <Segment key={index} {...segment} />)}
             </div>
         );
@@ -233,19 +255,15 @@ export default class ColorfulDigitCountdown extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.props.date);
         let seconds = Math.floor((this.props.date - new Date()) / 1000);
-        console.log(seconds);
 
         if (seconds < 0) {
             seconds = 0;
         }
-        console.log(seconds);
 
         this.setState({
             secondsRemaining: seconds
         });
-        console.log(this.state.secondsRemaining);
 
         this.updateTime = this.updateTime.bind(this);
 
@@ -281,7 +299,7 @@ export default class ColorfulDigitCountdown extends React.Component {
         const display = `${h}h ${("0" + m).slice(-2)}m ${("0" + s).slice(-2)}s`.split('');
 
         return (
-            <div className="clock">
+            <div className="clock" style={colorfulDigitCountdownStyle}>
                 {display.map((digit, index) => <Digit key={index} data={digits[digit]} />)}
             </div>
         );
