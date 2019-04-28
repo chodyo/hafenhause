@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/chodyo/hafenhause/server/nosqldb"
+	"github.com/chodyo/hafenhause/nosqldb"
 
 	"github.com/mitchellh/mapstructure"
 )
