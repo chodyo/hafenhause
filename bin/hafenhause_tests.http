@@ -1,4 +1,5 @@
-@baseUrl = https://us-central1-hafenhause.cloudfunctions.net
+@baseUrl = http://localhost:8888
+# @baseUrl = https://us-central1-hafenhause.cloudfunctions.net
 
 # Bedtime requests
 @path = Bedtime

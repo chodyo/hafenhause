@@ -3,13 +3,12 @@ version: "3.7"
 services:
 
   firestore:
-    image: perrystallings/cloud-firestore-emulator
+    image: pathmotion/firestore-emulator-docker
     # volumes:
     # - firestore-data:/opt/data
     environment:
       FIRESTORE_PROJECT_ID: hafenhause
-    ports:
-      - "8080:8080"
+      FIRESTORE_LISTEN_ADDRESS: 0.0.0.0:8080
 
   hafenhause:
     image: hafenhause
@@ -17,7 +16,7 @@ services:
       CORS_ALLOWED_ORIGIN: "*"
       GCLOUD_PROJECT: hafenhause
       PUBLIC_PORT: :8888
-      FIRESTORE_EMULATOR_HOST: localhost:8080
+      FIRESTORE_EMULATOR_HOST: firestore:8080
       FIRESTORE_PROJECT_ID: hafenhause
     ports:
       - "8888:8888"
