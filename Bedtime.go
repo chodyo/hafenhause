@@ -55,7 +55,7 @@ func Bedtime(w http.ResponseWriter, r *http.Request) {
 	// The basic CORS origin header needs to be on every response
 	w.Header().Set("Access-Control-Allow-Origin", accessAllowedOrigin)
 
-	log.Printf("Processing request with URL=%s and body=%+v\n", r.URL.String(), r.Body)
+	log.Printf("Processing %s request with URL=%s and body=%+v\n", r.Method, r.URL.String(), r.Body)
 
 	responseBody, err = processRequest(&w, r, db)
 }
